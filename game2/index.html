@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霓虹衝刺 - Game 2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="header">
+    <h1>⚡ 霓虹衝刺 NEON RUNNER</h1>
+    <div id="scoreBoard">
+      距離分數: <span id="score">0</span> | 最高紀錄: <span id="highScore">0</span>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas" width="800" height="320"></canvas>
+
+  <div class="controls">
+    <button id="restartBtn" onclick="resetGame()">重新挑戰</button>
+    <div class="hint">操作方式：按 <b>空白鍵 / ↑</b> 或 <b>點擊畫面</b> 跳躍（支援空中二段跳！）</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
