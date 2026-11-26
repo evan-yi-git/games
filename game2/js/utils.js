@@ -1,3 +1,4 @@
+//js（常數、背景與碰撞工具）
 export const GROUND_Y = 260;
 export const GRAVITY = 0.65;
 
