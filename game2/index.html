@@ -18,10 +18,12 @@
     <div class="profile-top">
       
         <span class="badge" id="playerRank">見習跑者</span>
-        <strong id="playerName">未命名玩家</strong>
-        <button id="editNameBtn" title="修改暱稱">✏️</button>
+        <!-- 玩家切換下拉選單 -->
+        <select id="playerSelect" title="切換玩家帳號"></select>
+        <button id="addPlayerBtn" title="新增玩家">+ 新增</button>
+        <button id="editNameBtn" title="修改目前暱稱">✏️</button>
       </div>
-      <button id="resetDataBtn" title="清除所有存檔">重置戰績</button>
+      <button id="resetDataBtn" title="刪除此玩家存檔">刪除帳號</button>
     </div>
     <div class="profile-stats">
       <div class="stat-box">
@@ -48,22 +50,23 @@
   <canvas id="gameCanvas" width="800" height="320"></canvas>
 
   <div class="controls">
-    <!-- 移除 inline onclick，改由 main.js 綁定事件 -->
     <button id="restartBtn">重新挑戰</button>
     <div class="hint">操作方式：按 <b>空白鍵 / ↑</b> 或 <b>點擊畫面</b> 跳躍（支援空中二段跳！）</div>
   </div>
 
-  <!-- 首次進入 / 修改暱稱彈窗 -->
+  <!-- 建立 / 修改暱稱彈窗 -->
   <div id="nameModal" class="modal">
     <div class="modal-content">
-      <h2>建立你的特工檔案</h2>
+      <h2 id="modalTitle">建立你的特工檔案</h2>
       <p>輸入暱稱以開始記錄你的生涯戰績：</p>
       <input type="text" id="nicknameInput" maxlength="12" placeholder="例如：Evan（最多12字）">
-      <button id="saveNameBtn">確認儲存</button>
+      <div class="modal-buttons">
+        <button id="cancelNameBtn" class="btn-secondary">取消</button>
+        <button id="saveNameBtn" class="btn-primary">確認儲存</button>
+      </div>
     </div>
   </div>
 
-  <!-- 使用 type="module" 載入主程式 -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
