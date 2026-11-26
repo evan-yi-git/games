@@ -8,11 +8,36 @@
 </head>
 <body>
 
+  <!-- 玩家個人檔案卡片 -->
+  <div class="profile-card">
+    <div class="profile-top">
+      
+        <span class="badge" id="playerRank">見習跑者</span>
+        <strong id="playerName">未命名玩家</strong>
+        <button id="editNameBtn" title="修改暱稱">✏️</button>
+      </div>
+      <button id="resetDataBtn" title="清除所有存檔">重置戰績</button>
+    </div>
+    <div class="profile-stats">
+      <div class="stat-box">
+        <span class="stat-label">最高紀錄</span>
+        <span class="stat-value highlight-pink" id="highScore">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">總遊玩次數</span>
+        <span class="stat-value" id="totalPlays">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">累積能量結晶</span>
+        <span class="stat-value highlight-yellow" id="totalGems">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 即時分數列 -->
   <div class="header">
     <h1>⚡ 霓虹衝刺 NEON RUNNER</h1>
-    <div id="scoreBoard">
-      距離分數: <span id="score">0</span> | 最高紀錄: <span id="highScore">0</span>
-    </div>
+    <div id="scoreBoard">本局分數: <span id="score">0</span></div>
   </div>
 
   <canvas id="gameCanvas" width="800" height="320"></canvas>
@@ -20,6 +45,16 @@
   <div class="controls">
     <button id="restartBtn" onclick="resetGame()">重新挑戰</button>
     <div class="hint">操作方式：按 <b>空白鍵 / ↑</b> 或 <b>點擊畫面</b> 跳躍（支援空中二段跳！）</div>
+  </div>
+
+  <!-- 首次進入 / 修改暱稱彈窗 -->
+  <div id="nameModal" class="modal">
+    <div class="modal-content">
+      <h2>建立你的特工檔案</h2>
+      <p>輸入暱稱以開始記錄你的生涯戰績：</p>
+      <input type="text" id="nicknameInput" maxlength="12" placeholder="例如：Evan（最多12字）">
+      <button id="saveNameBtn">確認儲存</button>
+    </div>
   </div>
 
   <script src="/game2/script.js"></script>

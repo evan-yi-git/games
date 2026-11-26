@@ -2,21 +2,88 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("score");
 const highScoreEl = document.getElementById("highScore");
+const totalPlaysEl = document.getElementById("totalPlays");
+const totalGemsEl = document.getElementById("totalGems");
+const playerNameEl = document.getElementById("playerName");
+const playerRankEl = document.getElementById("playerRank");
 const restartBtn = document.getElementById("restartBtn");
 
+// 彈窗與按鈕元素
+const nameModal = document.getElementById("nameModal");
+const nicknameInput = document.getElementById("nicknameInput");
+const saveNameBtn = document.getElementById("saveNameBtn");
+const editNameBtn = document.getElementById("editNameBtn");
+const resetDataBtn = document.getElementById("resetDataBtn");
+
+// 讀取或初始化玩家個人檔案
+const STORAGE_KEY = "neonRunnerProfile_v1";
+let playerProfile = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+  name: "",
+  highScore: 0,
+  totalPlays: 0,
+  totalGems: 0
+};
+
+// 儲存檔案並更新畫面 UI
+function saveAndRenderProfile() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(playerProfile));
+  playerNameEl.innerText = playerProfile.name || "未命名玩家";
+  highScoreEl.innerText = playerProfile.highScore;
+  totalPlaysEl.innerText = playerProfile.totalPlays;
+  totalGemsEl.innerText = playerProfile.totalGems;
+
+  // 依據累積結晶數量自動計算玩家稱號
+  if (playerProfile.totalGems >= 50) {
+    playerRankEl.innerText = "👑 賽博傳奇";
+    playerRankEl.style.backgroundColor = "#fee440";
+  } else if (playerProfile.totalGems >= 15) {
+    playerRankEl.innerText = "⚡ 霓虹獵人";
+    playerRankEl.style.backgroundColor = "#f15bb5";
+    playerRankEl.style.color = "#fff";
+  } else {
+    playerRankEl.innerText = "🔰 見習跑者";
+    playerRankEl.style.backgroundColor = "#00f5d4";
+    playerRankEl.style.color = "#0d0d1a";
+  }
+}
+
+// 彈窗事件處理
+saveNameBtn.addEventListener("click", () => {
+  const inputName = nicknameInput.value.trim();
+  if (!inputName) {
+    alert("請輸入玩家暱稱！");
+    return;
+  }
+  const isFirstTime = !playerProfile.name;
+  playerProfile.name = inputName;
+  saveAndRenderProfile();
+  nameModal.style.display = "none";
+  if (isFirstTime) update(); // 首次建立完成後啟動遊戲
+});
+
+editNameBtn.addEventListener("click", () => {
+  nicknameInput.value = playerProfile.name;
+  nameModal.style.display = "flex";
+});
+
+resetDataBtn.addEventListener("click", () => {
+  if (confirm("確定要清除所有個人戰績與暱稱紀錄嗎？此動作無法復原。")) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+});
+
+// 遊戲核心變數
 const GROUND_Y = 260;
 const GRAVITY = 0.65;
 
 let score = 0;
-let highScore = localStorage.getItem("neonRunnerHighScore") || 0;
-highScoreEl.innerText = highScore;
-
+let sessionGems = 0;
 let gameSpeed = 6;
 let frameCount = 0;
 let isGameOver = false;
 let animationId;
 
-// 玩家角色設定
 const player = {
   x: 80,
   y: GROUND_Y - 36,
@@ -34,9 +101,8 @@ let gems = [];
 let particles = [];
 let bgOffset = 0;
 
-// 跳躍控制（支援二段跳）
 function jump() {
-  if (isGameOver) return;
+  if (isGameOver || nameModal.style.display === "flex") return;
   if (player.jumpCount < player.maxJumps) {
     player.vy = player.jumpForce;
     player.jumpCount++;
@@ -46,6 +112,7 @@ function jump() {
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" || e.code === "ArrowUp") {
+    if (nameModal.style.display === "flex") return;
     e.preventDefault();
     jump();
   }
@@ -57,7 +124,6 @@ canvas.addEventListener("touchstart", (e) => {
   jump();
 }, { passive: false });
 
-// 跳躍粒子特效
 function createJumpParticles(x, y) {
   for (let i = 0; i < 8; i++) {
     particles.push({
@@ -71,43 +137,19 @@ function createJumpParticles(x, y) {
   }
 }
 
-// 生成障礙物與加分結晶
 function spawnEntities() {
-  // 障礙物生成間隔隨速度調整
   const spawnRate = Math.max(55, Math.floor(110 - gameSpeed * 3));
   if (frameCount % spawnRate === 0 && Math.random() < 0.85) {
     const type = Math.random();
     if (type < 0.55) {
-      // 地面尖刺
-      obstacles.push({
-        x: canvas.width,
-        y: GROUND_Y - 35,
-        width: 28,
-        height: 35,
-        kind: "spike"
-      });
+      obstacles.push({ x: canvas.width, y: GROUND_Y - 35, width: 28, height: 35, kind: "spike" });
     } else if (type < 0.85) {
-      // 雙連高牆（需二段跳）
-      obstacles.push({
-        x: canvas.width,
-        y: GROUND_Y - 62,
-        width: 30,
-        height: 62,
-        kind: "wall"
-      });
+      obstacles.push({ x: canvas.width, y: GROUND_Y - 62, width: 30, height: 62, kind: "wall" });
     } else {
-      // 空中無人機（可從下方跑過或大跳躍過）
-      obstacles.push({
-        x: canvas.width,
-        y: GROUND_Y - 75,
-        width: 38,
-        height: 24,
-        kind: "drone"
-      });
+      obstacles.push({ x: canvas.width, y: GROUND_Y - 75, width: 38, height: 24, kind: "drone" });
     }
   }
 
-  // 隨機生成能量結晶 (+50分)
   if (frameCount % 90 === 0 && Math.random() < 0.6) {
     gems.push({
       x: canvas.width,
@@ -117,7 +159,6 @@ function spawnEntities() {
   }
 }
 
-// 繪製捲動背景網格與地板
 function drawBackground() {
   bgOffset = (bgOffset - gameSpeed * 0.4) % 40;
   ctx.strokeStyle = "rgba(0, 245, 212, 0.08)";
@@ -130,7 +171,6 @@ function drawBackground() {
     ctx.stroke();
   }
 
-  // 霓虹地板線
   ctx.fillStyle = "#161632";
   ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
 
@@ -142,7 +182,6 @@ function drawBackground() {
   ctx.stroke();
 }
 
-// 碰撞偵測（略微縮小判定框增加手感寬容度）
 function isColliding(a, b) {
   const pad = 4;
   return (
@@ -159,7 +198,6 @@ function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   frameCount++;
 
-  // 隨時間推進增加分數與速度
   if (frameCount % 5 === 0) {
     score++;
     scoreEl.innerText = score;
@@ -168,7 +206,6 @@ function update() {
 
   drawBackground();
 
-  // 更新玩家物理狀態
   player.vy += GRAVITY;
   player.y += player.vy;
 
@@ -178,7 +215,6 @@ function update() {
     player.jumpCount = 0;
   }
 
-  // 繪製玩家方塊（帶有發光外框與護目鏡）
   ctx.shadowBlur = 12;
   ctx.shadowColor = player.color;
   ctx.fillStyle = player.color;
@@ -188,7 +224,6 @@ function update() {
   ctx.fillStyle = "#0d0d1a";
   ctx.fillRect(player.x + 20, player.y + 8, 12, 8);
 
-  // 更新粒子特效
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
     p.x += p.vx;
@@ -201,7 +236,6 @@ function update() {
 
   spawnEntities();
 
-  // 更新並繪製能量結晶
   for (let i = gems.length - 1; i >= 0; i--) {
     let g = gems[i];
     g.x -= gameSpeed;
@@ -215,10 +249,10 @@ function update() {
     ctx.closePath();
     ctx.fill();
 
-    // 吃結晶判定
     const gemBox = { x: g.x - g.size, y: g.y - g.size, width: g.size * 2, height: g.size * 2 };
     if (isColliding(player, gemBox)) {
       score += 50;
+      sessionGems++;
       scoreEl.innerText = score;
       gems.splice(i, 1);
       continue;
@@ -227,7 +261,6 @@ function update() {
     if (g.x + g.size < 0) gems.splice(i, 1);
   }
 
-  // 更新並繪製障礙物
   for (let i = obstacles.length - 1; i >= 0; i--) {
     let obs = obstacles[i];
     obs.x -= gameSpeed;
@@ -259,29 +292,36 @@ function endGame() {
   isGameOver = true;
   cancelAnimationFrame(animationId);
 
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem("neonRunnerHighScore", highScore);
-    highScoreEl.innerText = highScore;
+  // 更新個人生涯戰績
+  playerProfile.totalPlays += 1;
+  playerProfile.totalGems += sessionGems;
+  if (score > playerProfile.highScore) {
+    playerProfile.highScore = score;
   }
+  saveAndRenderProfile();
 
-  ctx.fillStyle = "rgba(13, 13, 26, 0.75)";
+  ctx.fillStyle = "rgba(13, 13, 26, 0.78)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "#f15bb5";
-  ctx.font = "bold 36px sans-serif";
+  ctx.font = "bold 34px sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("系統過載！遊戲結束", canvas.width / 2, canvas.height / 2 - 15);
+  ctx.fillText("系統過載！遊戲結束", canvas.width / 2, canvas.height / 2 - 20);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "20px sans-serif";
-  ctx.fillText(`本次得分：${score}  |  最高紀錄：${highScore}`, canvas.width / 2, canvas.height / 2 + 25);
+  ctx.font = "18px sans-serif";
+  ctx.fillText(
+    `特工 ${playerProfile.name} 本局得分：${score}（收集 ${sessionGems} 顆結晶）`,
+    canvas.width / 2,
+    canvas.height / 2 + 20
+  );
 
   restartBtn.style.display = "block";
 }
 
 function resetGame() {
   score = 0;
+  sessionGems = 0;
   gameSpeed = 6;
   frameCount = 0;
   obstacles = [];
@@ -296,4 +336,10 @@ function resetGame() {
   update();
 }
 
-update();
+// 啟動初始化檢查
+saveAndRenderProfile();
+if (!playerProfile.name) {
+  nameModal.style.display = "flex"; // 首次遊玩先跳出暱稱設定
+} else {
+  update();
+}
