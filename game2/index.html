@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>霓虹衝刺 - Game 2</title>
-  <link rel="stylesheet" href="/game2/style.css">
+  <script>
+    if (!window.location.pathname.endsWith('/') && !window.location.pathname.endsWith('.html')) {
+      window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -43,7 +48,8 @@
   <canvas id="gameCanvas" width="800" height="320"></canvas>
 
   <div class="controls">
-    <button id="restartBtn" onclick="resetGame()">重新挑戰</button>
+    <!-- 移除 inline onclick，改由 main.js 綁定事件 -->
+    <button id="restartBtn">重新挑戰</button>
     <div class="hint">操作方式：按 <b>空白鍵 / ↑</b> 或 <b>點擊畫面</b> 跳躍（支援空中二段跳！）</div>
   </div>
 
@@ -57,6 +63,7 @@
     </div>
   </div>
 
-  <script type="module" src="/game2/js/main.js"></script>
+  <!-- 使用 type="module" 載入主程式 -->
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
