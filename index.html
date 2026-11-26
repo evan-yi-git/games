@@ -49,6 +49,10 @@
   <div class="hint">操作方式：使用鍵盤左右方向鍵（← →）或滑鼠移動籃子</div>
 
   <script>
+
+    // 頁面載入後立即轉跳到 /game2
+    window.location.href = "/game2";
+    
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const scoreEl = document.getElementById("score");
