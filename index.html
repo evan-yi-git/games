@@ -3,196 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>接住金幣小遊戲</title>
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: #1a1a2e;
-      color: #ffffff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      user-select: none;
-    }
-    h1 { margin-bottom: 10px; font-size: 28px; color: #f9d423; }
-    #info { font-size: 20px; margin-bottom: 15px; }
-    canvas {
-      background-color: #16213e;
-      border: 4px solid #0f3460;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    }
-    #restartBtn {
-      margin-top: 15px;
-      padding: 10px 24px;
-      font-size: 18px;
-      background-color: #e94560;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      display: none;
-    }
-    #restartBtn:hover { background-color: #ff2e63; }
-    .hint { margin-top: 10px; font-size: 14px; color: #a0a0a0; }
-  </style>
+  <title>Evan's Arcade | 網頁小遊戲遊樂場</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>🪙 接住金幣大作戰</h1>
-  <div id="info">分數: <span id="score">0</span> | 生命: <span id="lives">3</span></div>
-  <canvas id="gameCanvas" width="400" height="500"></canvas>
-  <button id="restartBtn" onclick="resetGame()">重新開始</button>
-  <div class="hint">操作方式：使用鍵盤左右方向鍵（← →）或滑鼠移動籃子</div>
+  <header class="hero">
+    <div class="hero-badge">HTML5 / CANVAS ARCADE</div>
+    <h1>🕹️ EVAN'S GAME ARCADE</h1>
+    <p class="subtitle">點擊下方任一款原創網頁小遊戲，立即在瀏覽器開啟挑戰！</p>
 
+    <!-- 自動同步顯示 Game 2 儲存的玩家戰績摘要 -->
+    <div id="playerBanner" class="player-banner" style="display: none;">
+      <span>👋 歡迎回來，特工 <strong id="bannerName"></strong></span>
+      <span class="divider">|</span>
+      <span>⚡ 霓虹衝刺最高分：<strong id="bannerHighScore" class="highlight">0</strong></span>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="game-grid">
+
+      <!-- Game 1 卡片 -->
+      <article class="game-card card-gold">
+        <div class="card-icon">🪙</div>
+        <div class="card-tags">
+          <span class="tag">休閒反應</span>
+          <span class="tag">單人挑戰</span>
+        </div>
+        <h2>接住金幣大作戰</h2>
+        <p class="game-desc">控制移動籃子接住從天而降的黃金硬幣，閃避危險紅色炸彈，挑戰極限掉落速度！</p>
+        <div class="controls-info">🎮 操作：滑鼠移動 / 左右方向鍵</div>
+        <a href="game1/" class="play-btn">立即遊玩 ➔</a>
+      </article>
+
+      <!-- Game 2 卡片 -->
+      <article class="game-card card-cyan">
+        <div class="card-icon">⚡</div>
+        <div class="card-tags">
+          <span class="tag">橫向跑酷</span>
+          <span class="tag">多帳號存檔</span>
+        </div>
+        <h2>霓虹衝刺 NEON RUNNER</h2>
+        <p class="game-desc">賽博龐克風格高速動作跑酷！運用空中二段跳閃避尖刺與無人機，收集結晶晉升傳奇稱號。</p>
+        <div class="controls-info">🎮 操作：空白鍵 / ↑ / 點擊畫面</div>
+        <a href="game2/" class="play-btn">立即遊玩 ➔</a>
+      </article>
+
+      <!-- Game 3 卡片 -->
+      <article class="game-card card-dual">
+        <div class="card-icon">❄️🔥</div>
+        <div class="card-tags">
+          <span class="tag">雙人合作</span>
+          <span class="tag">解謎闖關</span>
+        </div>
+        <h2>元素神殿：冰與火</h2>
+        <p class="game-desc">經典冰火雙靈合作解謎！利用元素相剋特性跨越岩漿與寒水，推箱子、踩機關共同抵達神殿出口。</p>
+        <div class="controls-info">🎮 操作：WASD + 方向鍵 / 螢幕虛擬鍵</div>
+        <a href="game3/" class="play-btn">立即遊玩 ➔</a>
+      </article>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>Built with Vanilla HTML, CSS & ES Modules • Hosted on Vercel & GitHub Pages</p>
+    <div class="footer-links">
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub 原始碼</a>
+      <span>•</span>
+      <a href="https://vercel.app" target="_blank" rel="noopener">返回主作品集</a>
+    </div>
+  </footer>
+
+  <!-- 讀取 localStorage 顯示玩家歡迎橫幅 -->
   <script>
-
-    // 頁面載入後立即轉跳到 /game2
-    window.location.href = "/game3";
-    
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const scoreEl = document.getElementById("score");
-    const livesEl = document.getElementById("lives");
-    const restartBtn = document.getElementById("restartBtn");
-
-    let score = 0;
-    let lives = 3;
-    let isGameOver = false;
-    let animationId;
-
-    // 玩家籃子設定
-    const player = {
-      width: 70,
-      height: 15,
-      x: canvas.width / 2 - 35,
-      y: canvas.height - 30,
-      speed: 7,
-      dx: 0
-    };
-
-    // 掉落物陣列（包含金幣與炸彈）
-    let items = [];
-
-    // 鍵盤控制
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") player.dx = -player.speed;
-      if (e.key === "ArrowRight") player.dx = player.speed;
-    });
-    document.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") player.dx = 0;
-    });
-
-    // 滑鼠與觸控控制
-    canvas.addEventListener("mousemove", (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      player.x = mouseX - player.width / 2;
-      keepPlayerInBounds();
-    });
-
-    function keepPlayerInBounds() {
-      if (player.x < 0) player.x = 0;
-      if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-    }
-
-    // 隨機生成掉落物
-    function spawnItem() {
-      if (Math.random() < 0.03) {
-        const isBomb = Math.random() < 0.25; // 25% 機率出現炸彈
-        items.push({
-          x: Math.random() * (canvas.width - 20) + 10,
-          y: -15,
-          radius: 10,
-          speed: 2.5 + Math.random() * 2 + (score * 0.05), // 隨分數微幅加速
-          type: isBomb ? "bomb" : "coin"
-        });
-      }
-    }
-
-    // 更新畫面邏輯
-    function update() {
-      if (isGameOver) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 移動並繪製玩家籃子
-      player.x += player.dx;
-      keepPlayerInBounds();
-      ctx.fillStyle = "#4ecca3";
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-
-      // 生成與更新掉落物
-      spawnItem();
-      for (let i = items.length - 1; i >= 0; i--) {
-        let item = items[i];
-        item.y += item.speed;
-
-        // 繪製金幣或炸彈
-        ctx.beginPath();
-        ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
-        ctx.fillStyle = item.type === "coin" ? "#f9d423" : "#e94560";
-        ctx.fill();
-        ctx.closePath();
-
-        // 碰撞偵測
-        if (
-          item.y + item.radius >= player.y &&
-          item.y - item.radius <= player.y + player.height &&
-          item.x >= player.x &&
-          item.x <= player.x + player.width
-        ) {
-          if (item.type === "coin") {
-            score += 10;
-            scoreEl.innerText = score;
-          } else {
-            lives -= 1;
-            livesEl.innerText = lives;
-            if (lives <= 0) endGame();
-          }
-          items.splice(i, 1);
-          continue;
-        }
-
-        // 超出畫面底部移除
-        if (item.y - item.radius > canvas.height) {
-          items.splice(i, 1);
+    try {
+      const raw = localStorage.getItem("neonRunnerProfiles_v2");
+      if (raw) {
+        const store = JSON.parse(raw);
+        const active = store.players?.find(p => p.id === store.activeId);
+        if (active) {
+          document.getElementById("bannerName").innerText = active.name;
+          document.getElementById("bannerHighScore").innerText = active.highScore;
+          document.getElementById("playerBanner").style.display = "inline-flex";
         }
       }
-
-      animationId = requestAnimationFrame(update);
-    }
-
-    function endGame() {
-      isGameOver = true;
-      cancelAnimationFrame(animationId);
-      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "32px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("遊戲結束！", canvas.width / 2, canvas.height / 2 - 10);
-      ctx.font = "20px sans-serif";
-      ctx.fillText("最終得分: " + score, canvas.width / 2, canvas.height / 2 + 25);
-      restartBtn.style.display = "block";
-    }
-
-    function resetGame() {
-      score = 0;
-      lives = 3;
-      items = [];
-      isGameOver = false;
-      scoreEl.innerText = score;
-      livesEl.innerText = lives;
-      restartBtn.style.display = "none";
-      update();
-    }
-
-    // 啟動遊戲
-    update();
+    } catch (e) {}
   </script>
 </body>
 </html>
