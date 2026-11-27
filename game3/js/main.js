@@ -30,13 +30,19 @@ let isPaused = false;
 let tick = 0;
 let animationId;
 
-// 雙角色鍵盤狀態紀錄
 const keys = {};
 
 window.addEventListener("keydown", (e) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
     e.preventDefault();
   }
+
+  // 當過關或失敗彈窗開啟時，按空白鍵直接觸發按鈕（下一關或重新挑戰）
+  if (e.code === "Space" && isPaused && overlay.style.display === "flex") {
+    overlayBtn.click();
+    return;
+  }
+
   keys[e.code] = true;
 });
 
@@ -44,7 +50,6 @@ window.addEventListener("keyup", (e) => {
   keys[e.code] = false;
 });
 
-// 綁定下方虛擬觸控按鍵（支援手機多點觸控與滑鼠長按）
 document.querySelectorAll(".pad-btns button").forEach((btn) => {
   const code = btn.dataset.key;
   const press = (e) => {
@@ -65,7 +70,7 @@ document.querySelectorAll(".pad-btns button").forEach((btn) => {
 
 function loadLevel(index) {
   currentLevelIndex = index;
-  levelSelect.value = index;
+  levelSelect.value = String(index);
   level = getLevelData(index);
 
   icePlayer = createPlayer(level.iceStart.x, level.iceStart.y, "ice");
@@ -96,12 +101,16 @@ function showOverlay(isWin, message) {
 
   if (isWin) {
     const hasNext = currentLevelIndex + 1 < levelSelect.options.length;
-    overlayBtn.innerText = hasNext ? "進入下一關 ➔" : "從第 1 關重新挑戰";
-    overlayBtn.onclick = () => {
-      loadLevel(hasNext ? currentLevelIndex + 1 : 0);
-    };
+    if (hasNext) {
+      overlayBtn.innerText = "進入下一關 ➔（按空白鍵）";
+      overlayBtn.onclick = () => loadLevel(currentLevelIndex + 1);
+    } else {
+      overlayTitle.innerText = "🏆 全關卡制霸！";
+      overlayBtn.innerText = "從第 1 關重新挑戰（按空白鍵）";
+      overlayBtn.onclick = () => loadLevel(0);
+    }
   } else {
-    overlayBtn.innerText = "🔄 重新挑戰本關";
+    overlayBtn.innerText = "🔄 重新挑戰本關（按空白鍵）";
     overlayBtn.onclick = () => loadLevel(currentLevelIndex);
   }
 }
@@ -110,14 +119,12 @@ function gameLoop() {
   if (!isPaused) {
     tick++;
 
-    // 冰靈控制 (W A D)
     const iceInput = {
       left: keys["KeyA"],
       right: keys["KeyD"],
       up: keys["KeyW"]
     };
 
-    // 火靈控制 (方向鍵)
     const fireInput = {
       left: keys["ArrowLeft"],
       right: keys["ArrowRight"],
@@ -132,14 +139,12 @@ function gameLoop() {
     const result = checkInteractions(icePlayer, firePlayer, level);
     updateGemHUD();
 
+    renderGame(ctx, canvas, level, icePlayer, firePlayer, tick);
+
     if (result.status === "dead") {
-      renderGame(ctx, canvas, level, icePlayer, firePlayer, tick);
       showOverlay(false, result.reason);
     } else if (result.status === "win") {
-      renderGame(ctx, canvas, level, icePlayer, firePlayer, tick);
       showOverlay(true, result.reason);
-    } else {
-      renderGame(ctx, canvas, level, icePlayer, firePlayer, tick);
     }
   }
 
@@ -154,6 +159,5 @@ restartBtn.addEventListener("click", () => {
   loadLevel(currentLevelIndex);
 });
 
-// 啟動遊戲
 loadLevel(0);
 gameLoop();
