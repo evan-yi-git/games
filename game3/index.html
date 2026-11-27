@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元素神殿：冰與火 - Game 3</title>
+  <script>
+    if (!window.location.pathname.endsWith('/') && !window.location.pathname.endsWith('.html')) {
+      window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="level-info">
+      <h1 id="levelTitle">第 1 關：元素試煉</h1>
+      <div class="gem-counter">
+        <span>❄️ 冰鑽: <b id="iceGemsText">0/0</b></span>
+        <span>🔥 火鑽: <b id="fireGemsText">0/0</b></span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <select id="levelSelect" title="選擇關卡">
+        <option value="0">第 1 關：元素試煉</option>
+        <option value="1">第 2 關：雙子神殿</option>
+      </select>
+      <button id="restartBtn">🔄 重玩本關</button>
+    </div>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="gameCanvas" width="800" height="480"></canvas>
+    <!-- 過關 / 失敗覆蓋彈窗 -->
+    <div id="overlay" class="overlay">
+      <h2 id="overlayTitle">通關成功！</h2>
+      <p id="overlayDesc">冰與火完美合作通過了考驗</p>
+      <button id="overlayBtn">下一關</button>
+    </div>
+  </div>
+
+  <!-- 雙角色虛擬按鍵（支援手機觸控或單人滑鼠操作） -->
+  <div class="touch-controls">
+    <div class="pad ice-pad">
+      <span class="pad-label">❄️ 冰靈 (W A D)</span>
+      <div class="pad-btns">
+        <button data-key="KeyA">◀</button>
+        <button data-key="KeyW">▲ 跳</button>
+        <button data-key="KeyD">▶</button>
+      </div>
+    </div>
+    <div class="pad fire-pad">
+      <span class="pad-label">🔥 火靈 (◀ ▲ ▶)</span>
+      <div class="pad-btns">
+        <button data-key="ArrowLeft">◀</button>
+        <button data-key="ArrowUp">▲ 跳</button>
+        <button data-key="ArrowRight">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
