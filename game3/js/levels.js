@@ -11,38 +11,40 @@ export function getLevelData(index) {
         { x: 0, y: 0, w: 20, h: 480 },      // 左牆
         { x: 780, y: 0, w: 20, h: 480 },    // 右牆
 
-        // 中層平台：往左縮短至 x: 540，右側留出 240px 挑高空間絕不撞頭！
-        { x: 20, y: 310, w: 520, h: 20 },
-        { x: 650, y: 375, w: 130, h: 20 },  // 右下階梯跳台
+        // 中層平台（分段設計：在 x:215~325 紅池正上方留出挑高天井，跳躍絕對不撞頭！）
+        { x: 20, y: 310, w: 195, h: 20 },   // 中左平台
+        { x: 325, y: 310, w: 235, h: 20 },  // 中右平台
+        { x: 660, y: 375, w: 120, h: 20 },  // 右下階梯跳台
 
-        // 頂層終點平台：左側留出 220px 挑高空間
-        { x: 220, y: 185, w: 560, h: 20 },
-        { x: 20, y: 245, w: 120, h: 20 }    // 左中階梯跳台
+        // 頂層終點平台（在綠池 x:390~475 正上方留出挑高天井，跳綠池也不撞頭！）
+        { x: 180, y: 185, w: 200, h: 20 },  // 頂左平台
+        { x: 485, y: 185, w: 295, h: 20 },  // 頂右終點平台
+        { x: 20, y: 245, w: 100, h: 20 }    // 左中階梯跳台
       ],
-      // 池子上方完全挑高無遮擋，起跳絕對不會撞頭
+      // 所有危險池正上方皆為挑高天井，完全無遮擋
       hazards: [
-        { x: 220, y: 432, w: 90, h: 12, type: "fire" },    // 紅池（下方）
-        { x: 560, y: 432, w: 80, h: 12, type: "ice" },     // 藍池（右下挑高區，完全無頂牆！）
-        { x: 260, y: 302, w: 90, h: 12, type: "poison" }   // 綠池（中層）
+        { x: 225, y: 432, w: 85, h: 12, type: "fire" },    // 第一個紅池（上方挑高無遮擋）
+        { x: 565, y: 432, w: 80, h: 12, type: "ice" },     // 第二個藍池（上方挑高無遮擋）
+        { x: 390, y: 302, w: 85, h: 12, type: "poison" }   // 中層綠池（上方挑高無遮擋）
       ],
       bridges: [
-        { id: "bridge1", x: 140, y: 185, w: 80, h: 20, open: false }
+        { id: "bridge1", x: 120, y: 185, w: 60, h: 20, open: false }
       ],
       switches: [
-        { x: 470, y: 298, w: 36, h: 12, target: "bridge1", type: "plate", active: false }
+        { x: 500, y: 298, w: 36, h: 12, target: "bridge1", type: "plate", active: false }
       ],
       boxes: [],
       gems: [
-        { x: 265, y: 395, type: "fire", collected: false },
-        { x: 600, y: 395, type: "ice", collected: false },
-        { x: 305, y: 255, type: "fire", collected: false },
-        { x: 305, y: 220, type: "ice", collected: false },
-        { x: 430, y: 145, type: "ice", collected: false },
-        { x: 520, y: 145, type: "fire", collected: false }
+        { x: 268, y: 395, type: "fire", collected: false },
+        { x: 605, y: 395, type: "ice", collected: false },
+        { x: 432, y: 255, type: "fire", collected: false },
+        { x: 432, y: 220, type: "ice", collected: false },
+        { x: 530, y: 145, type: "ice", collected: false },
+        { x: 585, y: 145, type: "fire", collected: false }
       ],
       doors: {
-        ice: { x: 640, y: 129, w: 40, h: 56 },
-        fire: { x: 700, y: 129, w: 40, h: 56 }
+        ice: { x: 650, y: 129, w: 40, h: 56 },
+        fire: { x: 710, y: 129, w: 40, h: 56 }
       }
     },
 
@@ -57,18 +59,15 @@ export function getLevelData(index) {
         { x: 0, y: 0, w: 20, h: 480 },
         { x: 780, y: 0, w: 20, h: 480 },
 
-        // 中央隔牆
         { x: 390, y: 345, w: 20, h: 95 },
-        // 左右二層平台（上方池子移至挑高處，避免跳躍撞頭）
         { x: 20, y: 315, w: 250, h: 20 },
         { x: 530, y: 315, w: 250, h: 20 },
-        // 高層平台
         { x: 200, y: 195, w: 400, h: 20 }
       ],
       hazards: [
-        { x: 275, y: 432, w: 95, h: 12, type: "ice" },     // 左下藍池（上方無平台遮擋）
-        { x: 430, y: 432, w: 95, h: 12, type: "fire" },    // 右下紅池（上方無平台遮擋）
-        { x: 355, y: 187, w: 90, h: 12, type: "poison" }   // 頂層中央毒池
+        { x: 275, y: 432, w: 95, h: 12, type: "ice" },
+        { x: 430, y: 432, w: 95, h: 12, type: "fire" },
+        { x: 355, y: 187, w: 90, h: 12, type: "poison" }
       ],
       bridges: [
         { id: "gateLeft", x: 270, y: 315, w: 120, h: 20, open: false },
@@ -94,6 +93,5 @@ export function getLevelData(index) {
     }
   ];
 
-  // 修正索引預設值為 levels[0]
-  return JSON.parse(JSON.stringify(levels[index] || levels[0]));
+  return JSON.parse(JSON.stringify(levels[index] || levels));
 }
