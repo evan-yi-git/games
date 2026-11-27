@@ -1,0 +1,165 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #141218;
+  color: #f0e6d2;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  user-select: none;
+}
+
+.top-bar {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #211d29;
+  border: 2px solid #4a3f5c;
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 12px;
+}
+
+.level-info h1 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  color: #ffd166;
+}
+
+.gem-counter {
+  display: flex;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.gem-counter span:first-child b { color: #4cc9f0; }
+.gem-counter span:last-child b { color: #f72585; }
+
+.top-actions {
+  display: flex;
+  gap: 8px;
+}
+
+select, button {
+  background: #2e283b;
+  color: #fff;
+  border: 1px solid #6c5b8c;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover, select:hover {
+  border-color: #ffd166;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #1b1824;
+  border: 3px solid #4a3f5c;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 18, 24, 0.85);
+  border-radius: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.overlay h2 {
+  font-size: 32px;
+  margin: 0 0 10px 0;
+  color: #ffd166;
+}
+
+.overlay p {
+  font-size: 18px;
+  margin: 0 0 20px 0;
+  color: #d8cce8;
+}
+
+.overlay button {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 28px;
+  background: #ffd166;
+  color: #141218;
+  border: none;
+}
+
+/* 虛擬雙人按鍵面板 */
+.touch-controls {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pad {
+  flex: 1;
+  background: #211d29;
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ice-pad { border: 1px solid #4cc9f0; }
+.fire-pad { border: 1px solid #f72585; }
+
+.pad-label {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.ice-pad .pad-label { color: #4cc9f0; }
+.fire-pad .pad-label { color: #f72585; }
+
+.pad-btns {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.pad-btns button {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+  touch-action: manipulation;
+}
+
+.ice-pad button:active { background: #4cc9f0; color: #141218; }
+.fire-pad button:active { background: #f72585; color: #fff; }
