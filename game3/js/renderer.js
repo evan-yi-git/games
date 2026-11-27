@@ -30,20 +30,20 @@ export function renderGame(ctx, canvas, level, icePlayer, firePlayer, tick) {
     ctx.strokeRect(w.x, w.y, w.w, w.h);
   }
 
-  // 4. 繪製機關橋（開啟為實體金色光橋，關閉為虛線框）
+  // 4. 繪製機關橋
   for (const b of level.bridges) {
     if (b.open) {
       ctx.fillStyle = "#ffd166";
       ctx.fillRect(b.x, b.y, b.w, b.h);
     } else {
       ctx.strokeStyle = "rgba(255, 209, 102, 0.35)";
-      ctx.setLineDash([5, 5]);
+      ctx.setLineDash([6, 4]);
       ctx.strokeRect(b.x, b.y, b.w, b.h);
       ctx.setLineDash([]);
     }
   }
 
-  // 5. 繪製機關開關（壓力板與拉桿）
+  // 5. 繪製機關開關
   for (const sw of level.switches) {
     if (sw.type === "plate") {
       ctx.fillStyle = sw.active ? "#06d6a0" : "#ffd166";
@@ -61,7 +61,7 @@ export function renderGame(ctx, canvas, level, icePlayer, firePlayer, tick) {
     }
   }
 
-  // 6. 繪製元素液體池（帶微幅波浪動畫）
+  // 6. 繪製元素液體池
   for (const hz of level.hazards) {
     if (hz.type === "fire") ctx.fillStyle = "#f72585";
     else if (hz.type === "ice") ctx.fillStyle = "#4cc9f0";
@@ -78,14 +78,13 @@ export function renderGame(ctx, canvas, level, icePlayer, firePlayer, tick) {
     ctx.lineWidth = 2;
     ctx.fillRect(box.x, box.y, box.w, box.h);
     ctx.strokeRect(box.x, box.y, box.w, box.h);
-    // 繪製箱子對角木紋
     ctx.beginPath();
     ctx.moveTo(box.x, box.y);
     ctx.lineTo(box.x + box.w, box.y + box.h);
     ctx.stroke();
   }
 
-  // 8. 繪製元素鑽石（帶上下漂浮動畫）
+  // 8. 繪製元素鑽石
   for (const gem of level.gems) {
     if (gem.collected) continue;
     const floatY = gem.y + Math.sin(tick * 0.08 + gem.x) * 3;
@@ -99,9 +98,9 @@ export function renderGame(ctx, canvas, level, icePlayer, firePlayer, tick) {
     ctx.fill();
   }
 
-  // 9. 繪製冰靈與火靈角色
-  drawCharacter(ctx, icePlayer, "#4cc9f0", "#caf0f8");
-  drawCharacter(ctx, firePlayer, "#f72585", "#ffccd5");
+  // 9. 繪製冰靈與火靈角色（彈開保護期間加入閃爍效果）
+  drawCharacter(ctx, icePlayer, "#4cc9f0", "#caf0f8", tick);
+  drawCharacter(ctx, firePlayer, "#f72585", "#ffccd5", tick);
 }
 
 function drawDoor(ctx, door, color, icon, isOccupied) {
@@ -116,15 +115,28 @@ function drawDoor(ctx, door, color, icon, isOccupied) {
   ctx.fillText(icon, door.x + door.w / 2, door.y - 6);
 }
 
-function drawCharacter(ctx, p, mainColor, eyeColor) {
+function drawCharacter(ctx, p, mainColor, eyeColor, tick) {
+  // 彈飛無敵保護期間每 4 幀閃爍一次
+  if (p.hurtTimer > 0 && Math.floor(tick / 4) % 2 === 0) {
+    ctx.globalAlpha = 0.45;
+  }
+
   ctx.shadowBlur = 10;
   ctx.shadowColor = mainColor;
   ctx.fillStyle = mainColor;
   ctx.fillRect(p.x, p.y, p.w, p.h);
   ctx.shadowBlur = 0;
 
-  // 可愛大眼睛
+  // 若剛被彈飛，加上白色驚嚇外框
+  if (p.hurtTimer > 25) {
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(p.x, p.y, p.w, p.h);
+  }
+
   ctx.fillStyle = eyeColor;
   ctx.fillRect(p.x + 5, p.y + 10, 6, 8);
   ctx.fillRect(p.x + 17, p.y + 10, 6, 8);
+
+  ctx.globalAlpha = 1.0;
 }
