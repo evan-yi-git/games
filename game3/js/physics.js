@@ -10,6 +10,8 @@ export function createPlayer(x, y, element) {
     h: 38,
     vx: 0,
     vy: 0,
+    knockbackVx: 0,   // 彈飛時的水平推力
+    hurtTimer: 0,     // 受傷後的閃爍保護倒數
     element,
     onGround: false,
     atDoor: false
@@ -31,9 +33,17 @@ function getSolidPlatforms(level) {
 }
 
 export function updatePlayerPhysics(player, input, level) {
-  player.vx = 0;
-  if (input.left) player.vx = -MOVE_SPEED;
-  if (input.right) player.vx = MOVE_SPEED;
+  if (player.hurtTimer > 0) player.hurtTimer--;
+
+  // 水平速度結合玩家操作與彈飛推力
+  let moveVx = 0;
+  if (input.left) moveVx = -MOVE_SPEED;
+  if (input.right) moveVx = MOVE_SPEED;
+
+  player.vx = moveVx + player.knockbackVx;
+  // 彈飛推力隨幀數平滑衰減
+  player.knockbackVx *= 0.85;
+  if (Math.abs(player.knockbackVx) < 0.2) player.knockbackVx = 0;
 
   if (input.up && player.onGround) {
     player.vy = JUMP_FORCE;
@@ -43,6 +53,7 @@ export function updatePlayerPhysics(player, input, level) {
   player.vy += GRAVITY;
   const solids = getSolidPlatforms(level);
 
+  // 1. 水平移動與推箱子
   player.x += player.vx;
   for (const box of level.boxes) {
     if (rectIntersect(player, box)) {
@@ -70,9 +81,11 @@ export function updatePlayerPhysics(player, input, level) {
     if (rectIntersect(player, wall)) {
       if (player.vx > 0) player.x = wall.x - player.w;
       if (player.vx < 0) player.x = wall.x + wall.w;
+      player.knockbackVx = 0;
     }
   }
 
+  // 2. 垂直移動與落地判定
   player.y += player.vy;
   player.onGround = false;
   const verticalObstacles = [...solids, ...level.boxes];
@@ -128,21 +141,36 @@ export function updateSwitches(players, level) {
   }
 }
 
+// 觸碰危險池改為「向上並往池外彈開」，不再直接結束遊戲
+function bounceAwayFromHazard(player, hazard) {
+  const playerCenter = player.x + player.w / 2;
+  const hazardCenter = hazard.x + hazard.w / 2;
+  const pushDir = playerCenter < hazardCenter ? -1 : 1; // 往池子較近的一側彈出
+
+  player.y = hazard.y - player.h - 2; // 瞬間拉出水面避免卡住
+  player.vy = -10.5;                  // 向上彈起
+  player.knockbackVx = pushDir * 8.5; // 往旁邊彈開
+  player.onGround = false;
+  player.hurtTimer = 45;              // 0.75 秒保護時間
+}
+
 export function checkInteractions(icePlayer, firePlayer, level) {
   const players = [icePlayer, firePlayer];
 
   for (const p of players) {
-    for (const hz of level.hazards) {
-      const hitbox = { x: p.x + 6, y: p.y + 4, w: p.w - 12, h: p.h - 4 };
-      if (rectIntersect(hitbox, hz)) {
-        if (hz.type === "poison") {
-          return { status: "dead", reason: "觸碰到了劇毒沼澤！" };
-        }
-        if (hz.type === "fire" && p.element === "ice") {
-          return { status: "dead", reason: "❄️ 冰靈掉進岩漿蒸發了！" };
-        }
-        if (hz.type === "ice" && p.element === "fire") {
-          return { status: "dead", reason: "🔥 火靈掉進寒水熄滅了！" };
+    if (p.hurtTimer === 0) {
+      for (const hz of level.hazards) {
+        const hitbox = { x: p.x + 6, y: p.y + 4, w: p.w - 12, h: p.h - 4 };
+        if (rectIntersect(hitbox, hz)) {
+          const isDangerous =
+            hz.type === "poison" ||
+            (hz.type === "fire" && p.element === "ice") ||
+            (hz.type === "ice" && p.element === "fire");
+
+          if (isDangerous) {
+            bounceAwayFromHazard(p, hz);
+            break;
+          }
         }
       }
     }
@@ -160,7 +188,6 @@ export function checkInteractions(icePlayer, firePlayer, level) {
   icePlayer.atDoor = rectIntersect(icePlayer, level.doors.ice);
   firePlayer.atDoor = rectIntersect(firePlayer, level.doors.fire);
 
-  // 只要兩人都抵達對應出口門就過關，並統計寶石收集率
   if (icePlayer.atDoor && firePlayer.atDoor) {
     const got = level.gems.filter((g) => g.collected).length;
     const total = level.gems.length;
