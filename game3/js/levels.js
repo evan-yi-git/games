@@ -37,8 +37,8 @@ export function getLevelData(index) {
       gems: [
         { x: 268, y: 395, type: "fire", collected: false },
         { x: 605, y: 395, type: "ice", collected: false },
-        { x: 432, y: 275, type: "fire", collected: false },
-        { x: 432, y: 240, type: "ice", collected: false },
+        { x: 432, y: 220, type: "fire", collected: false },
+        { x: 432, y: 200, type: "ice", collected: false },
         { x: 530, y: 145, type: "ice", collected: false },
         { x: 585, y: 145, type: "fire", collected: false }
       ],
