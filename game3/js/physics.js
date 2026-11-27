@@ -1,6 +1,6 @@
 const GRAVITY = 0.55;
-const MOVE_SPEED = 4.2;
-const JUMP_FORCE = -11.2;
+const MOVE_SPEED = 4.8;     // 提升水平跑速（最大跨距約 230px，輕鬆飛躍池子）
+const JUMP_FORCE = -13.2;   // 提升跳躍高度（最大跳高約 158px，輕鬆跳上二、三層樓）
 
 export function createPlayer(x, y, element) {
   return {
@@ -51,7 +51,6 @@ export function updatePlayerPhysics(player, input, level) {
     if (rectIntersect(player, box)) {
       if (player.vx > 0) {
         box.x = player.x + player.w;
-        // 檢查箱子是否撞牆
         for (const wall of solids) {
           if (rectIntersect(box, wall)) {
             box.x = wall.x - box.w;
@@ -119,7 +118,6 @@ export function updateSwitches(players, level) {
 
   for (const sw of level.switches) {
     if (sw.type === "plate") {
-      // 只要有任一角色或箱子踩在上面就啟動
       sw.active = pressers.some((entity) => rectIntersect(entity, sw));
       const bridge = level.bridges.find((b) => b.id === sw.target);
       if (bridge) bridge.open = sw.active;
@@ -128,7 +126,7 @@ export function updateSwitches(players, level) {
       const touched = players.some((p) => rectIntersect(p, sw));
       if (touched && sw.cooldown === 0) {
         sw.active = !sw.active;
-        sw.cooldown = 35; // 防止連續快速觸發
+        sw.cooldown = 35;
         const bridge = level.bridges.find((b) => b.id === sw.target);
         if (bridge) bridge.open = sw.active;
       }
@@ -141,10 +139,9 @@ export function checkInteractions(icePlayer, firePlayer, level) {
   const players = [icePlayer, firePlayer];
 
   for (const p of players) {
-    // 檢查危險液體池
     for (const hz of level.hazards) {
-      // 稍微內縮判定框讓邊緣更寬容
-      const hitbox = { x: p.x + 4, y: p.y + 4, w: p.w - 8, h: p.h - 4 };
+      // 內縮判定框 6px，避免腳後跟擦邊判定過嚴
+      const hitbox = { x: p.x + 6, y: p.y + 4, w: p.w - 12, h: p.h - 4 };
       if (rectIntersect(hitbox, hz)) {
         if (hz.type === "poison") {
           return { status: "dead", reason: "觸碰到了劇毒沼澤！" };
@@ -158,7 +155,6 @@ export function checkInteractions(icePlayer, firePlayer, level) {
       }
     }
 
-    // 收集對應顏色寶石
     for (const gem of level.gems) {
       if (!gem.collected && gem.type === p.element) {
         const gemBox = { x: gem.x - 10, y: gem.y - 10, w: 20, h: 20 };
@@ -169,15 +165,12 @@ export function checkInteractions(icePlayer, firePlayer, level) {
     }
   }
 
-  // 檢查是否雙雙抵達對應出口門
   icePlayer.atDoor = rectIntersect(icePlayer, level.doors.ice);
   firePlayer.atDoor = rectIntersect(firePlayer, level.doors.fire);
 
   const allGemsCollected = level.gems.every((g) => g.collected);
-  if (icePlayer.atDoor && firePlayer.atDoor) {
-    if (allGemsCollected) {
-      return { status: "win", reason: "雙靈齊心，成功收集所有元素鑽石！" };
-    }
+  if (icePlayer.atDoor && firePlayer.atDoor && allGemsCollected) {
+    return { status: "win", reason: "雙靈齊心，成功收集所有元素鑽石！" };
   }
 
   return { status: "playing" };
